@@ -16,4 +16,4 @@
 # Configuration for the Java Main container
 ---
 java_main_class:
-arguments:
+arguments: "--spring.threads.virtual.enabled=true"
