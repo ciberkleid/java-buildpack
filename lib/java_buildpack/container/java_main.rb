@@ -54,8 +54,14 @@ module JavaBuildpack
           end
         end
         puts `echo "HELLO!!! ####################################"`
+
+        puts `echo dropletroot "#{@droplet.root}"`
+        puts `echo application root "#{@application.root}"`
+
+        puts `echo droplet java_home root "#{@droplet.java_home.root}"`
+        puts `echo application "#{@application}"`
         puts `ls -al`
-        puts `ls -al app/`
+        puts `ls -al /tmp/`
         puts `pwd`
         java = @droplet.java_home.root + 'bin/java'
         shell "cd #{@droplet.root} && zip -vr0 #{application_name}.jar . -x #{IGNORE_FILES}"
