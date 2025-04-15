@@ -80,6 +80,16 @@ module JavaBuildpack
 
 
 
+        # cds_training_opts = @configuration[CDS_TRAINING_ARGS] || java_opts_str || ''
+        cds_run = "cd #{@droplet.root} && " \
+          "#{java} #{CONTEXT_PROPERTY} #{CDS_ARCHIVE_FLAG}=#{CDS_ARCHIVE_FILE} -jar #{application_name}.jar"   # For demo - not optional, just hardcoding it in
+        with_timing 'Performing CDS Training Run', true do
+          shell cds_run
+        end
+        cds_run
+
+
+
         # @droplet.additional_libraries.link_to(@spring_boot_utils.lib(@droplet))
       end
 
@@ -110,6 +120,16 @@ module JavaBuildpack
       end
 
       private
+
+      CONTEXT_PROPERTY = '-Dspring.context.exit=onRefresh'
+
+      AOT_PROPERTY = '-Dspring.aot.enabled'
+
+      CDS_ARCHIVE_FILE = 'application.jsa'
+
+      CDS_ARCHIVE_FLAG = '-XX:ArchiveClassesAtExit'
+
+      CDS_ARCHIVE_PROPERTY = '-XX:SharedArchiveFile'
 
       IGNORE_FILES = %w[*.last_modified *.etag *.cached *.java-buildpack/*].join(' ')
 
