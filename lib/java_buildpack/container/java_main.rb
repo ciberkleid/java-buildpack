@@ -73,9 +73,9 @@ module JavaBuildpack
 
         shell "cd #{@droplet.root} && rm #{application_name}.jar && mv #{application_name}/* ./ && rmdir #{application_name}"
         puts `echo "Extracted jar:"  && ls -al #{@droplet.root}/#{application_name}.jar`
-        puts `echo /tmp/app"`
+        puts `echo /tmp/app`
         puts `ls -al /tmp/app/`
-        puts `echo /tmp/app/lib"`
+        puts `echo /tmp/app/lib`
         puts `ls -al /tmp/app/lib`
 
 
