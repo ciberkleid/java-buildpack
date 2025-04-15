@@ -85,7 +85,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        manifest_class_path.each { |path| @droplet.additional_libraries << path }
+        # manifest_class_path.each { |path| @droplet.additional_libraries << path }
 
         if @spring_boot_utils.is?(@application)
           @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT'
@@ -95,8 +95,12 @@ module JavaBuildpack
                     .add_system_property('thin.offline', true)
                     .add_system_property('thin.root', thin_root)
           end
-        else
-          @droplet.additional_libraries.insert 0, @application.root
+          ## COMMENT OUT BINDINGS CLASSPATH FILES FOR NOW TO FOCUS ON EXTRACT USE CASE
+          ## WOULD NEED TO ADD BACK TO CONNECT TO A SERVICE
+          ## WORKAROUND: IN APP POM.XML CAN INCLUDE THE JARS
+          ## BUT IDEALLY - COME BACK AND CONFIGURE THIS PORPERLY FOR THE EXTRACTED USE CASE
+        # else
+        #   @droplet.additional_libraries.insert 0, @application.root
         end
 
         release_text(classpath)
