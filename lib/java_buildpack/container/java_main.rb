@@ -80,7 +80,7 @@ module JavaBuildpack
 
 
 
-        @droplet.additional_libraries.link_to(@spring_boot_utils.lib(@droplet))
+        # @droplet.additional_libraries.link_to(@spring_boot_utils.lib(@droplet))
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
@@ -103,7 +103,7 @@ module JavaBuildpack
         #   @droplet.additional_libraries.insert 0, @application.root
         end
 
-        release_text(classpath)
+        release_text()
       end
 
       def application_name
@@ -120,7 +120,7 @@ module JavaBuildpack
 
       private_constant :ARGUMENTS_PROPERTY, :CLASS_PATH_PROPERTY
 
-      def release_text(classpath)
+      def release_text()
         [
           @droplet.environment_variables.as_env_vars,
           'eval',
@@ -144,11 +144,6 @@ module JavaBuildpack
 
       def main_class
         JavaBuildpack::Util::JavaMainUtils.main_class(@application, @configuration)
-      end
-
-      def manifest_class_path
-        values = JavaBuildpack::Util::JavaMainUtils.manifest(@application)[CLASS_PATH_PROPERTY]
-        values.nil? ? [] : values.split.map { |value| @droplet.root + value }
       end
 
       def thin_root
