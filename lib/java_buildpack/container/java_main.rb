@@ -68,7 +68,7 @@ module JavaBuildpack
         java = @droplet.java_home.root + 'bin/java'
         shell "cd #{@droplet.root} && zip -vr0 #{application_name}.jar . -x #{IGNORE_FILES}"
         puts `echo "Original jar:"  && ls -al #{@droplet.root}/#{application_name}.jar`
-        shell "cd #{@droplet.root} && rm -rf BOOT-INF/ META-INF/ org/" # do not remove cached and last_modified files
+        # shell "cd #{@droplet.root} && rm -rf BOOT-INF/ META-INF/ org/" # do not remove cached and last_modified files
         shell "cd #{@droplet.root} && #{java} -Djarmode=tools -jar #{application_name}.jar extract"
 
         shell "cd #{@droplet.root} && rm #{application_name}.jar && mv #{application_name}/* ./ && rmdir #{application_name}"
