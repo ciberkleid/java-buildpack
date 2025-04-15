@@ -60,20 +60,22 @@ module JavaBuildpack
 
         puts `echo droplet java_home root "#{@droplet.java_home.root}"`
 
-        puts `echo application "#{@application}"`
+        # puts `echo application "#{@application}"`
         puts `ls -al`
         puts `ls -al /tmp/`
         puts `pwd`
-        application_name = @application.details['application_name']
         puts `echo applicationname  "#{application_name}"`
         java = @droplet.java_home.root + 'bin/java'
         shell "cd #{@droplet.root} && zip -vr0 #{application_name}.jar . -x #{IGNORE_FILES}"
+        puts `echo "Original jar:"  && ls -al #{@droplet.root}/#{application_name}.jar`
+        shell "cd #{@droplet.root} && rm -rf BOOT-INF/ META-INF/ org/" # do not remove cached and last_modified files
         shell "cd #{@droplet.root} && #{java} -Djarmode=tools -jar #{application_name}.jar extract"
 
-        shell "cd #{@droplet.root} && rm -rf BOOT-INF/ META-INF/ #{application_name}.jar org/ && mv #{application_name}/* ./"
-
-
+        shell "cd #{@droplet.root} && rm #{application_name}.jar && mv #{application_name}/* ./ && rmdir #{application_name}"
+        puts `echo "Extracted jar:"  && ls -al #{@droplet.root}/#{application_name}.jar`
+        puts `echo /tmp/app"`
         puts `ls -al /tmp/app/`
+        puts `echo /tmp/app/lib"`
         puts `ls -al /tmp/app/lib`
 
 
@@ -100,6 +102,10 @@ module JavaBuildpack
         release_text(classpath)
       end
 
+      def application_name
+        (@application.details['application_name'] || 'cds-runner')
+      end
+
       private
 
       IGNORE_FILES = %w[*.last_modified *.etag *.cached *.java-buildpack/*].join(' ')
@@ -117,8 +123,8 @@ module JavaBuildpack
           'exec',
           "#{qualify_path @droplet.java_home.root, @droplet.root}/bin/java",
           '$JAVA_OPTS',
-          classpath,
-          main_class,
+          '-jar',
+          "#{application_name}.jar",
           arguments
         ].flatten.compact.join(' ')
       end
