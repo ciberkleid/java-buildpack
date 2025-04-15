@@ -59,14 +59,17 @@ module JavaBuildpack
         puts `echo application root "#{@application.root}"`
 
         puts `echo droplet java_home root "#{@droplet.java_home.root}"`
+
         puts `echo application "#{@application}"`
         puts `ls -al`
         puts `ls -al /tmp/`
         puts `pwd`
+        application_name = @application.details['application_name']
+        puts `echo applicationname  "#{application_name}"`
         java = @droplet.java_home.root + 'bin/java'
         shell "cd #{@droplet.root} && zip -vr0 #{application_name}.jar . -x #{IGNORE_FILES}"
         shell "cd #{@droplet.root} && #{java} -Djarmode=tools -jar #{application_name}.jar extract"
-
+        puts `ls -al /tmp/app`
 
         @droplet.additional_libraries.link_to(@spring_boot_utils.lib(@droplet))
       end
@@ -91,6 +94,8 @@ module JavaBuildpack
       end
 
       private
+
+      IGNORE_FILES = %w[*.last_modified *.etag *.cached *.java-buildpack/*].join(' ')
 
       ARGUMENTS_PROPERTY = 'arguments'
 
