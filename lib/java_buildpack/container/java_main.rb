@@ -69,7 +69,14 @@ module JavaBuildpack
         java = @droplet.java_home.root + 'bin/java'
         shell "cd #{@droplet.root} && zip -vr0 #{application_name}.jar . -x #{IGNORE_FILES}"
         shell "cd #{@droplet.root} && #{java} -Djarmode=tools -jar #{application_name}.jar extract"
-        puts `ls -al /tmp/app`
+
+        shell "cd #{@droplet.root} && rm -rf BOOT-INF/ META-INF/ #{application_name}.jar org/ && mv #{application_name}/* ./"
+
+
+        puts `ls -al /tmp/app/`
+        puts `ls -al /tmp/app/lib`
+
+
 
         @droplet.additional_libraries.link_to(@spring_boot_utils.lib(@droplet))
       end
