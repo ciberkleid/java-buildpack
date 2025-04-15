@@ -53,6 +53,9 @@ module JavaBuildpack
             @spring_boot_utils.cache_thin_dependencies @droplet.java_home.root, @application.root, thin_root
           end
         end
+        puts `echo "HELLO!!! ####################################"`
+        puts `ls -al`
+        puts `pwd`
 
         @droplet.additional_libraries.link_to(@spring_boot_utils.lib(@droplet))
       end
