@@ -115,7 +115,7 @@ module JavaBuildpack
 
 
         @droplet.java_opts.add_option(CDS_ARCHIVE_PROPERTY, CDS_ARCHIVE_FILE)
-        # @droplet.java_opts.add_option(AOT_PROPERTY, 'true')
+        @droplet.java_opts.add_option(AOT_PROPERTY, 'true')
 
         release_text()
       end
