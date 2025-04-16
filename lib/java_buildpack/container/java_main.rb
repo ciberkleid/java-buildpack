@@ -86,7 +86,8 @@ module JavaBuildpack
         with_timing 'Performing CDS Training Run', true do
           shell cds_run
         end
-        cds_run
+        # cds_run
+        puts `echo "Expecting jsa CDS cache file:" && ls -al /tmp/app/`
 
 
 
