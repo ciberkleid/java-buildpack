@@ -112,6 +112,8 @@ module JavaBuildpack
         @droplet.java_opts.add_option('-XX:SharedArchiveFile', 'application.jsa')
         # Prepare startup command for AOT
         @droplet.java_opts.add_option('-Dspring.aot.enabled', 'true')
+        # Enable virtual threads
+        @droplet.java_opts.add_option('-Dspring.threads.virtual.enabled', 'true')
 
         release_text()
       end
