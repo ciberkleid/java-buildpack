@@ -54,6 +54,15 @@ module JavaBuildpack
           end
         end
 
+        puts `echo "########## CF DAY DEMO ##########"`
+        puts `echo current dir: $PWD`
+        puts `echo application root: "#{@application.root}"`
+        puts `echo droplet root: "#{@droplet.root}"`
+        puts `echo java home: "#{@droplet.java_home.root}"`
+        puts `echo application name: "#{@application.details['application_name']}"`
+        puts `echo Contents of "#{@droplet.root}":`
+        puts `ls -al #{@droplet.root}`
+
         @droplet.additional_libraries.link_to(@spring_boot_utils.lib(@droplet))
       end
 
