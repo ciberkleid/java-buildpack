@@ -79,11 +79,12 @@ module JavaBuildpack
         puts `echo Contents of "#{@droplet.root}"/lib:`
         puts `ls "#{@droplet.root}"/lib`
 
-        # Do CDS training run
+        # Do CDS training run with AOT enabled
         with_timing 'Running shell command for CDS training run', true do
           shell "cd #{@droplet.root} && " +
                   "#{java} -Dspring.context.exit=onRefresh " +
                   "-XX:ArchiveClassesAtExit=application.jsa " +
+                  "-Dspring.aot.enabled=true " +
                   "-jar #{application_name}.jar"
         end
         puts `echo "Expecting jsa CDS cache file: " && ls -ltr #{@droplet.root} | tail -n 3`
@@ -109,6 +110,8 @@ module JavaBuildpack
 
         # Prepare startup command for CDS
         @droplet.java_opts.add_option('-XX:SharedArchiveFile', 'application.jsa')
+        # Prepare startup command for AOT
+        @droplet.java_opts.add_option('-Dspring.aot.enabled', 'true')
 
         release_text()
       end
