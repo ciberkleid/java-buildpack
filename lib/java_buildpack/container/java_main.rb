@@ -63,12 +63,30 @@ module JavaBuildpack
         puts `echo Contents of "#{@droplet.root}":`
         puts `ls -al #{@droplet.root}`
 
-        @droplet.additional_libraries.link_to(@spring_boot_utils.lib(@droplet))
+        # Re-zip app, leave out buildpack-added files
+        #application_name = @application.details['application_name'] || 'cds-runner'  # Defined at class level (needed for release method too)
+        ignore_files = %w[*.last_modified *.etag *.cached *.java-buildpack/*].join(' ')
+        shell "cd #{@droplet.root} && zip -vr0 #{application_name}.jar . -x #{ignore_files}"
+        puts `echo "Original jar: " && ls -ltr #{@droplet.root} | tail -n 1`
+
+        # shell "cd #{@droplet.root} && rm -rf BOOT-INF/ META-INF/ org/" # do not remove cached and last_modified files
+
+        # Extract the jar to the optimized structure
+        java = @droplet.java_home.root + 'bin/java'
+        shell "cd #{@droplet.root} && #{java} -Djarmode=tools -jar #{application_name}.jar extract"
+        shell "cd #{@droplet.root} && rm #{application_name}.jar && mv #{application_name}/* ./ && rmdir #{application_name}"
+        puts `echo "Extracted jar and lib dir: " && ls -ltr #{@droplet.root} | tail -n 2`
+        puts `echo Contents of "#{@droplet.root}"/lib:`
+        puts `ls "#{@droplet.root}"/lib`
+
+        # This line adds CF-specific libraries to the application
+        # Difficult to do this without a JDK
+        # Workaround: add the libraries to the application dependencies
+        #@droplet.additional_libraries.link_to(@spring_boot_utils.lib(@droplet))
       end
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        manifest_class_path.each { |path| @droplet.additional_libraries << path }
 
         if @spring_boot_utils.is?(@application)
           @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT'
@@ -78,11 +96,8 @@ module JavaBuildpack
                     .add_system_property('thin.offline', true)
                     .add_system_property('thin.root', thin_root)
           end
-        else
-          @droplet.additional_libraries.insert 0, @application.root
         end
-
-        release_text(classpath)
+        release_text()
       end
 
       private
@@ -93,15 +108,19 @@ module JavaBuildpack
 
       private_constant :ARGUMENTS_PROPERTY, :CLASS_PATH_PROPERTY
 
-      def release_text(classpath)
+      def application_name
+        (@application.details['application_name'] || 'cds-runner')
+      end
+
+      def release_text()
         [
           @droplet.environment_variables.as_env_vars,
           'eval',
           'exec',
           "#{qualify_path @droplet.java_home.root, @droplet.root}/bin/java",
           '$JAVA_OPTS',
-          classpath,
-          main_class,
+          '-jar',
+          "#{application_name}.jar",
           arguments
         ].flatten.compact.join(' ')
       end
@@ -110,18 +129,8 @@ module JavaBuildpack
         @configuration[ARGUMENTS_PROPERTY]
       end
 
-      def classpath
-        cp = @spring_boot_utils.is?(@application) ? '-cp $PWD/.' : @droplet.additional_libraries.as_classpath
-        ([cp] + @droplet.root_libraries.qualified_paths).join(':')
-      end
-
       def main_class
         JavaBuildpack::Util::JavaMainUtils.main_class(@application, @configuration)
-      end
-
-      def manifest_class_path
-        values = JavaBuildpack::Util::JavaMainUtils.manifest(@application)[CLASS_PATH_PROPERTY]
-        values.nil? ? [] : values.split.map { |value| @droplet.root + value }
       end
 
       def thin_root

@@ -16,7 +16,7 @@
 # Configuration for JRE repositories keyed by vendor
 ---
 jre:
-  version: 1.8.0_+
+  version: 21.+
   version_lines:
   - 1.8.0_+
   - 11.+
