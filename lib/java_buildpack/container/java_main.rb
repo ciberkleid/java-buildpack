@@ -79,6 +79,15 @@ module JavaBuildpack
         puts `echo Contents of "#{@droplet.root}"/lib:`
         puts `ls "#{@droplet.root}"/lib`
 
+        # Do CDS training run
+        with_timing 'Running shell command for CDS training run', true do
+          shell "cd #{@droplet.root} && " +
+                  "#{java} -Dspring.context.exit=onRefresh " +
+                  "-XX:ArchiveClassesAtExit=application.jsa " +
+                  "-jar #{application_name}.jar"
+        end
+        puts `echo "Expecting jsa CDS cache file: " && ls -ltr #{@droplet.root} | tail -n 3`
+
         # This line adds CF-specific libraries to the application
         # Difficult to do this without a JDK
         # Workaround: add the libraries to the application dependencies
@@ -97,6 +106,10 @@ module JavaBuildpack
                     .add_system_property('thin.root', thin_root)
           end
         end
+
+        # Prepare startup command for CDS
+        @droplet.java_opts.add_option('-XX:SharedArchiveFile', 'application.jsa')
+
         release_text()
       end
 
